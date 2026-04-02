@@ -1,0 +1,56 @@
+type: object
+required:
+    - id
+    - event_type
+    - target_url
+    - status
+    - attempts
+    - max_attempts
+    - next_retry_at
+    - created_at
+    - updated_at
+properties:
+    id:
+        type: string
+        format: uuid
+    event_type:
+        type: string
+        description: Identifies the kind of outbound call (e.g. trainer_session_feedback)
+    target_url:
+        type: string
+        description: HTTP endpoint that receives the POST
+    payload:
+        type: object
+        description: Arbitrary JSON payload persisted at enqueue time
+        additionalProperties: true
+    status:
+        $ref: "../outbox-schema.yaml#/components/schemas/OutboxMessageStatus"
+    attempts:
+        type: integer
+        description: Number of delivery attempts made so far
+    max_attempts:
+        type: integer
+        description: Maximum attempts before marking as dead
+    next_retry_at:
+        type: string
+        format: date-time
+    last_error:
+        type: string
+        nullable: true
+        description: Error message from the last failed attempt
+    sent_at:
+        type: string
+        format: date-time
+        nullable: true
+    tenant_id:
+        type: string
+        nullable: true
+    created_by:
+        type: string
+        nullable: true
+    created_at:
+        type: string
+        format: date-time
+    updated_at:
+        type: string
+        format: date-time

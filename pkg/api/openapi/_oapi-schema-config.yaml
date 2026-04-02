@@ -1,0 +1,9 @@
+package: outbox
+output: api/openapi/outbox-schema.go
+generate:
+  models: true
+output-options:
+  skip-prune: true
+import-mapping:
+  ../outbox-schema.yaml: "-"
+  ./outbox-schema.yaml: "-"

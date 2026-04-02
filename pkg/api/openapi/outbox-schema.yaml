@@ -1,0 +1,14 @@
+openapi: "3.0.0"
+info:
+    version: 1.0.0
+    title: Common Outbox API
+    description: Schema types for the outbox module
+
+components:
+    schemas:
+        OutboxMessageStatus:
+            type: string
+            enum: [pending, sent, failed, dead]
+            description: Delivery status of an outbox message
+        OutboxMessage:
+            $ref: "./parts/outbox-message-schema.yaml"

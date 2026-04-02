@@ -1,0 +1,16 @@
+openapi: "3.0.0"
+info:
+    version: 1.0.0
+    title: Common Outbox API
+    description: Reliable outbound HTTP delivery with retry and admin UI
+
+paths:
+    /admin-api/v1/outbox/messages:
+        $ref: "./parts/messages-path.yaml"
+    /admin-api/v1/outbox/messages/{id}:
+        $ref: "./parts/messages-id-path.yaml"
+    /admin-api/v1/outbox/messages/{id}/retry:
+        $ref: "./parts/messages-id-retry-path.yaml"
+
+components:
+    $ref: "./outbox-schema.yaml#/components"
