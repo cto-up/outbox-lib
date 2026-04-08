@@ -1,6 +1,7 @@
 package api
 
 import (
+	"context"
 	"errors"
 	"net/http"
 
@@ -14,16 +15,23 @@ import (
 	"github.com/oapi-codegen/runtime/types"
 )
 
+// RetryTrigger is an optional callback fired after a message has been reset
+// for retry. The dispatcher (in the host app) supplies this so a manual
+// "retry now" actually delivers immediately instead of waiting for the next
+// poll tick. Implementations must be safe to invoke from a goroutine.
+type RetryTrigger func(ctx context.Context)
+
 type OutboxHandler struct {
-	store *db.Store
+	store   *db.Store
+	onRetry RetryTrigger
 }
 
-func NewOutboxHandler(store *db.Store) *OutboxHandler {
-	return &OutboxHandler{store: store}
+func NewOutboxHandler(store *db.Store, onRetry RetryTrigger) *OutboxHandler {
+	return &OutboxHandler{store: store, onRetry: onRetry}
 }
 
-func RegisterHandler(store *db.Store, options api.GinServerOptions, router *gin.Engine) {
-	h := NewOutboxHandler(store)
+func RegisterHandler(store *db.Store, options api.GinServerOptions, router *gin.Engine, onRetry RetryTrigger) {
+	h := NewOutboxHandler(store, onRetry)
 	api.RegisterHandlersWithOptions(router, h, options)
 }
 
@@ -96,6 +104,13 @@ func (h *OutboxHandler) RetryOutboxMessage(c *gin.Context, id types.UUID) {
 		}
 		c.JSON(http.StatusInternalServerError, helpers.ErrorResponse(err))
 		return
+	}
+
+	// Kick the dispatcher so the message goes out immediately rather than
+	// waiting for the next poll tick. Detached from the request context so
+	// it survives after the HTTP response is sent.
+	if h.onRetry != nil {
+		go h.onRetry(context.Background())
 	}
 
 	c.JSON(http.StatusOK, mapToDTO(row))
