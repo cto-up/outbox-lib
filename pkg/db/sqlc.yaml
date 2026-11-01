@@ -3,7 +3,7 @@ sql:
   - engine: "postgresql"
     queries: "./query/"
     schema:
-      - "../../../../vendor/ctoup.com/coreapp/pkg/core/db/migration"
+      - "../../../../vendor/github.com/cto-up/core-lib/pkg/core/db/migration"
       - "./migration/"
     gen:
       go:
